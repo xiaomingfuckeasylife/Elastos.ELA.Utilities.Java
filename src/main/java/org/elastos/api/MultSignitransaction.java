@@ -12,21 +12,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-/**
- * @author: DongLei.Tan
- * @contact: tandonglei28@gmail.com
- * @time: 2018/9/26
- */
 public class MultSignitransaction {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultSignitransaction.class);
-
-    /**
-     * 多签生成RawTrnsaction
-     *
-     * @param inputsAddOutpus 交易输入和交易输出的json字符串
-     * @return 返回RawTransaction的json字符串
-     * @throws Exception
-     */
 
     public static String genMultiSignRawTransaction(JSONObject inputsAddOutpus){
 
@@ -84,13 +71,6 @@ public class MultSignitransaction {
     }
 
 
-    /**
-     * 跨链多签生成RawTrnsaction
-     *
-     * @param inputsAddOutpus 交易输入和交易输出的json字符串
-     * @return 返回RawTransaction的json字符串
-     * @throws Exception
-     */
 
     public static String genCrossChainMultiSignRawTransaction(JSONObject inputsAddOutpus){
 

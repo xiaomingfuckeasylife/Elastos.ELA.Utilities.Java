@@ -6,6 +6,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +24,17 @@ public class UTXOTxInput {
 
     public int getSequence() {
         return Sequence;
+    }
+
+    @Override
+    public String toString() {
+        return "UTXOTxInput{" +
+                "ReferTxID=" + Arrays.toString(ReferTxID) +
+                ", ReferTxOutputIndex=" + ReferTxOutputIndex +
+                ", Sequence=" + Sequence +
+                ", privateKey='" + privateKey + '\'' +
+                ", programHash='" + programHash + '\'' +
+                '}';
     }
 
     public String getPrivateKey() {
@@ -77,12 +89,12 @@ public class UTXOTxInput {
         String Txid = DatatypeConverter.printHexBinary(Utils.reverseBytes(buf));
 
         Map<String, Object> inputMap = new HashMap<String, Object>();
-        inputMap.put("Txid:",Txid);
+        inputMap.put("Txid",Txid);
 
         //ReferTxOutputIndex
-        Short.reverseBytes(o.readShort());
+        inputMap.put("Vout",Short.reverseBytes(o.readShort()));
         //Sequence
-        Integer.reverseBytes(o.readInt());
+        inputMap.put("Sequence",Integer.reverseBytes(o.readInt()));
 
         return inputMap;
     }

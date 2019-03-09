@@ -10,6 +10,7 @@ import org.junit.Test;
 import javax.xml.bind.DatatypeConverter;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -149,5 +150,22 @@ public class ElaTest {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(rawTxByte);
         DataInputStream dos = new DataInputStream(byteArrayInputStream);
         Tx.DeSerialize(dos);
+    }
+
+    @Test
+    public void privKeyTest() throws Exception{
+
+        long value = 9899999900l;
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+        dos.writeLong(value);
+
+        System.out.println();
+    }
+
+    @Test
+    public void XAddress(){
+
     }
 }

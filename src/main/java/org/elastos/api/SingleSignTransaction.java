@@ -13,20 +13,10 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.*;
 
-/**
- * @author: DongLei.Tan
- * @contact: tandonglei28@gmail.com
- * @time: 2018/9/21
- */
 public class SingleSignTransaction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleSignTransaction.class);
-    /**
-     * 生成RawTrnsaction
-     * @param inputsAddOutpus 交易输入和交易输出的json字符串
-     * @return  返回RawTransaction的json字符串
-     * @throws Exception
-     */
+
     public static String genRawTransaction(JSONObject inputsAddOutpus){
         try {
             final JSONArray transaction = inputsAddOutpus.getJSONArray("Transactions");
@@ -69,13 +59,6 @@ public class SingleSignTransaction {
     }
 
 
-    /**
-     * 根据私钥获取utxo生成RawTrnsaction
-     *
-     * @param inputsAddOutpus 交易输入和交易输出的json字符串
-     * @return 返回RawTransaction的json字符串
-     * @throws Exception
-     */
     public static String genRawTransactionByPrivateKey(JSONObject inputsAddOutpus){
 
         try {
@@ -120,14 +103,6 @@ public class SingleSignTransaction {
         }
     }
 
-    /**
-     * 单签垮链转账
-     *
-     * @param inputsAddOutpus 交易输入和交易输出的json字符串
-     * @return 返回RawTransaction的json字符串
-     * @throws Exception
-     */
-
     public static String genCrossChainRawTransaction(JSONObject inputsAddOutpus){
         try {
             final JSONArray transaction = inputsAddOutpus.getJSONArray("Transactions");
@@ -159,10 +134,7 @@ public class SingleSignTransaction {
         }
     }
 
-    /**
-     * 发送Rawtransaction
-     * @param rawTx
-     */
+
     public static String sendRawTransaction(String rawTx ,String txUrl) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("data" , rawTx);
@@ -183,12 +155,6 @@ public class SingleSignTransaction {
         return responseJSONObject.toString();
     }
 
-    /**
-     * 反解析rawTransaction得到TXid,address,value
-     * @param rawTransaction
-     * @return
-     * @throws IOException
-     */
     public static String decodeRawTransaction(String rawTransaction) throws IOException {
 
         byte[] rawTxByte = DatatypeConverter.parseHexBinary(rawTransaction);

@@ -18,7 +18,7 @@ public class SignTxAbnormal {
      * @return  原始交易数据 可以使用rest接口api/v1/transaction发送给节点
      * @throws IOException
      */
-    public static RawTx makeSingleSignTx(UTXOTxInput[] inputs, TxOutput[] outputs , List<String> privateKeySign) throws IOException {
+    public static RawTx makeSingleSignTx(UTXOTxInput[] inputs, TxOutput[] outputs , List<String> privateKeySign) throws Exception {
         Tx tx = Tx.NewTransferAssetTransaction(inputs, outputs);
         return SingleSignTx(tx,privateKeySign);
     }
@@ -28,7 +28,7 @@ public class SignTxAbnormal {
         return SingleSignTx(tx,privateKeySign);
     }
 
-    public static RawTx makeSingleSignTx(UTXOTxInput[] inputs, TxOutput[] outputs , List<String> privateKeySign,String memo) throws IOException {
+    public static RawTx makeSingleSignTx(UTXOTxInput[] inputs, TxOutput[] outputs , List<String> privateKeySign,String memo) throws Exception {
         Tx tx = Tx.NewTransferAssetTransaction(inputs, outputs,memo);
         return SingleSignTx(tx,privateKeySign);
 

@@ -6,8 +6,6 @@ import org.elastos.framework.node.Runner;
 
 /**
  * @author: DongLei.Tan
- * @contact: tandonglei@elastos.org
- * @time: 2018/1/22
  */
 public class Restful {
 

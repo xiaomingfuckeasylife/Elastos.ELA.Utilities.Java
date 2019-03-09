@@ -21,8 +21,6 @@ import java.util.Map;
  * 4、矿工地址给多个地址转账（一个地址多个uxto给多个地址转账）
  *
  * @author: DongLei.Tan
- * @contact: tandonglei@elastos.org
- * @time: 2018/1/22
  */
 public class Transaction_multi_address {
 

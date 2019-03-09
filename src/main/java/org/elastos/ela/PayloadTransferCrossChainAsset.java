@@ -4,8 +4,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 /**
  * @author: DongLei.Tan
- * @contact: tandonglei28@gmail.com
- * @time: 2018/9/26
  */
 public class PayloadTransferCrossChainAsset {
     String   CrossChainAddress;

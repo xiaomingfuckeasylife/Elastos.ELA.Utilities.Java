@@ -11,18 +11,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-/**
- * @author: DongLei.Tan
- * @contact: tandonglei28@gmail.com
- * @time: 2018/9/21
- */
 public class Basic {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Basic.class);
-    /**
-     * 生成私钥
-     * @return 返回json字符串
-     */
+
     public static String genPrivateKey(){
         String privateKey = Ela.getPrivateKey();
 
@@ -30,11 +22,6 @@ public class Basic {
         return getSuccess("genPrivateKey",privateKey);
     }
 
-    /**
-     * 生成公钥
-     * @param jsonObject  私钥
-     * @return 返回json字符串
-     */
     public static String genPublicKey(JSONObject jsonObject){
         try {
             Verify.verifyParameter(Verify.Type.PrivateKeyUpper,jsonObject);
@@ -50,11 +37,6 @@ public class Basic {
         return getSuccess("genPublicKey",publicKey);
     }
 
-    /**
-     * 生成地址
-     * @param jsonObject  私钥
-     * @return  返回Json字符串
-     */
     public static String genAddress(JSONObject jsonObject){
 
         try {
@@ -70,11 +52,6 @@ public class Basic {
         return getSuccess("genAddress",address);
     }
 
-    /**
-     * 生成身份id
-     * @param jsonObject  私钥
-     * @return  返回Json字符串
-     */
     public static String genIdentityID(JSONObject jsonObject){
 
         try {
@@ -90,10 +67,6 @@ public class Basic {
         return getSuccess("genIdentityID",address);
     }
 
-    /**
-     * 生成私钥、公钥、地址
-     * @return  返回json字符串
-     */
     public static String gen_priv_pub_addr(){
         String privateKey = Ela.getPrivateKey();
         String publicKey = Ela.getPublicFromPrivate(privateKey);
@@ -107,11 +80,6 @@ public class Basic {
         return getSuccess("gen_priv_pub_addr",resultMap);
     }
 
-    /**
-     * 校验地址是否为ela合法地址
-     * @param addresses 字典格式或者数组格式的地址
-     * @return
-     */
     public static String checkAddress(JSONObject addresses){
         LinkedHashMap<String, Object> resultMap = new LinkedHashMap<String, Object>();
         JSONArray addressesJSONArray = addresses.getJSONArray("Addresses");
@@ -143,12 +111,6 @@ public class Basic {
         return JSON.toJSONString(map);
     }
 
-    /**
-     * 根据blockHash 生成地址
-     *
-     * @param jsonObject
-     * @return 返回Json字符串
-     */
     public static String genGenesisAddress(JSONObject jsonObject) {
 
         String address = null;
@@ -165,11 +127,6 @@ public class Basic {
     }
 
 
-    /**
-     * 生成多签地址
-     *
-     * @return 返回json字符串
-     */
     public static String genMultiSignAddress(JSONObject jsonObject) {
 
         String address = null;
@@ -219,7 +176,17 @@ public class Basic {
 
             long amount = output.getLong("amount");
             String address = output.getString("address");
-            outputList.add(new TxOutput(address, amount));
+            JSONObject payload = (JSONObject) output.get("payload");
+            if (payload != null){
+                String type = (String)payload.get("type");
+                if (type != null && type.equalsIgnoreCase("vote")){
+                    JSONArray candidatePublicKeys = (JSONArray)payload.get("candidatePublicKeys");
+                    ;
+                    outputList.add(new TxOutput(address, amount,(String[])candidatePublicKeys.toArray(new String[]{}),(byte)0x01));
+                }
+            }else{
+                outputList.add(new TxOutput(address, amount));
+            }
         }
         return outputList;
     }
@@ -283,7 +250,11 @@ public class Basic {
         for (int i = 0; i < PrivateKeys.size(); i++) {
             JSONObject utxoInput = (JSONObject) PrivateKeys.get(i);
             Verify.verifyParameter(Verify.Type.PrivateKeyLower,utxoInput);
-            privateList.add(utxoInput.getString("privateKey"));
+            String privKey = utxoInput.getString("privateKey");
+            if(privateList.contains(privKey)){
+                continue;
+            };
+            privateList.add(privKey);
         }
         return privateList;
     }

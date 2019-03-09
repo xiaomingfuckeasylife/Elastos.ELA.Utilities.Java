@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author: DongLei.Tan
- * @contact: tandonglei28@gmail.com
- * @time: 2018/5/20
  */
 public class ElaController {
 

@@ -5,8 +5,6 @@ import java.math.BigInteger;
 
 /**
  * @author: DongLei.Tan
- * @contact: tandonglei28@gmail.com
- * @time: 2018/9/25
  */
 public class PublicX implements Comparable<PublicX>{
 

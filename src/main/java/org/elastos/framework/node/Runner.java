@@ -14,8 +14,6 @@ import java.util.List;
 
 /**
  * @author: DongLei.Tan
- * @contact: tandonglei@elastos.org
- * @time: 2018/1/22
  */
 public class Runner  {
     private static final Logger LOGGER = LoggerFactory.getLogger(Runner.class);

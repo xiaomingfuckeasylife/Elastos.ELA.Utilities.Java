@@ -27,7 +27,7 @@ public class Ela {
      * @return  原始交易数据 可以使用rest接口api/v1/transaction发送给节点
      * @throws IOException
      */
-    public static RawTx makeAndSignTx(UTXOTxInput[] inputs, TxOutput[] outputs) throws IOException {
+    public static RawTx makeAndSignTx(UTXOTxInput[] inputs, TxOutput[] outputs) throws Exception {
         Tx tx = Tx.NewTransferAssetTransaction( inputs, outputs);
         return SingleSignTx(tx);
     }
@@ -38,7 +38,13 @@ public class Ela {
         return SingleSignTx(tx);
     }
 
-    public static RawTx makeAndSignTx(UTXOTxInput[] inputs, TxOutput[] outputs,String memo) throws IOException {
+    public static RawTx makeAndSignTx(UTXOTxInput[] inputs, TxOutput[] outputs,PayloadRegisterIdentification payloadRegisterIdentification) throws IOException {
+        Tx tx = Tx.NewTransferAssetTransaction( inputs, outputs, payloadRegisterIdentification);
+        return SingleSignTx(tx,payloadRegisterIdentification);
+    }
+
+
+    public static RawTx makeAndSignTx(UTXOTxInput[] inputs, TxOutput[] outputs,String memo) throws Exception {
         Tx tx = Tx.NewTransferAssetTransaction( inputs, outputs, memo);
         return SingleSignTx(tx);
     }
@@ -51,6 +57,38 @@ public class Ela {
 
             byte[] code = Util.CreateSingleSignatureRedeemScript(ec.getPubBytes(),1);
             tx.sign(privateKey,code);
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+
+        tx.Serialize(dos);
+
+        System.out.println("tx info is " + tx);
+
+        String rawTxString = DatatypeConverter.printHexBinary(baos.toByteArray());
+        String txHash = DatatypeConverter.printHexBinary(tx.getHash());
+
+        return new RawTx(txHash,rawTxString);
+    }
+
+    public static RawTx SingleSignTx (Tx tx,PayloadRegisterIdentification payloadRegisterIdentification) throws  IOException{
+        // add did sign payload
+
+        byte[][] phashes = tx.getUniqAndOrdedProgramHashes();
+        for(int i=0;i<phashes.length;i++){
+            String privateKey = tx.hashMapPriv.get(DatatypeConverter.printHexBinary(phashes[i]));
+            ECKey ec = ECKey.fromPrivate(DatatypeConverter.parseHexBinary(privateKey));
+
+            byte[] code = Util.CreateSingleSignatureRedeemScript(ec.getPubBytes(),1);
+            tx.sign(privateKey,code);
+        }
+
+        {
+            String privateKey = payloadRegisterIdentification.getIdPrivKey();
+            ECKey ec = ECKey.fromPrivate(DatatypeConverter.parseHexBinary(privateKey));
+            byte[] code = Util.CreateSingleSignatureRedeemScript(ec.getPubBytes(), 3);
+            tx.signPayload(privateKey, code);
         }
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -186,11 +224,6 @@ public class Ela {
         return ec.toIdentityID();
     }
 
-    /**
-     *  生成多签地址
-     * @throws Exception
-     * @return
-     */
     public static String getMultiSignAddress(List<String> privateKey , int M) throws SDKException {
 
         List<PublicX> privateKeyList = new ArrayList<PublicX>();

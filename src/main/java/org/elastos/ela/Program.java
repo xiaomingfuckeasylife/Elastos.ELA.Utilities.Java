@@ -2,6 +2,7 @@ package org.elastos.ela;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Created by nan on 18/1/10.
@@ -20,6 +21,14 @@ public class Program {
         pb.PushData(Paramter);
 
         this.Parameter = pb.ToArray();
+    }
+
+    @Override
+    public String toString() {
+        return "Program{" +
+                "Code=" + Arrays.toString(Code) +
+                ", Parameter=" + Arrays.toString(Parameter) +
+                '}';
     }
 
     //Serialize the Program

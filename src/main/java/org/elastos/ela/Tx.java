@@ -17,12 +17,33 @@ public class Tx {
     byte PayloadVersion;
     PayloadRecord parloadRecord;
     PayloadTransferCrossChainAsset[] CrossChainAsset;
+    PayloadRegisterIdentification PayloadRegisterIdentification;
     TxAttribute[] Attributes;
     UTXOTxInput[] UTXOInputs;
     //BalanceInputs  []*BalanceTxInput
     TxOutput[] Outputs;
     long LockTime; //uint32
     List<Program> Programs;
+    byte TxVersion;
+    @Override
+    public String toString() {
+        return "Tx{" +
+                "TxType=" + TxType +
+                ", PayloadVersion=" + PayloadVersion +
+                ", parloadRecord=" + parloadRecord +
+                ", CrossChainAsset=" + Arrays.toString(CrossChainAsset) +
+                ", PayloadRegisterIdentification=" + PayloadRegisterIdentification +
+                ", Attributes=" + Arrays.toString(Attributes) +
+                ", UTXOInputs=" + Arrays.toString(UTXOInputs) +
+                ", Outputs=" + Arrays.toString(Outputs) +
+                ", LockTime=" + LockTime +
+                ", Programs=" + Programs +
+                ", Fee=" + Fee +
+                ", FeePerKB=" + FeePerKB +
+                ", hash=" + Arrays.toString(hash) +
+                ", hashMapPriv=" + hashMapPriv +
+                '}';
+    }
 
     long Fee;
     long FeePerKB;
@@ -37,7 +58,19 @@ public class Tx {
 
         byte[] signature = SignTool.doSign(baos.toByteArray(), DatatypeConverter.parseHexBinary(privateKey));
         this.Programs.add(new Program(code,signature));
+//        System.out.println("data:" + Arrays.toString(baos.toByteArray())+ ", sign:" +Arrays.toString(signature)+"code:" +Arrays.toString(code));
+        return;
+    }
 
+    public void signPayload(String privateKey,byte[] code) throws IOException {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+        this.PayloadRegisterIdentification.Serialize(dos);
+
+        byte[] signature = SignTool.doSign(baos.toByteArray(), DatatypeConverter.parseHexBinary(privateKey));
+        this.Programs.add(new Program(code,signature));
+//        System.out.println("data:" + Arrays.toString(baos.toByteArray())+ ", sign:" +Arrays.toString(signature)+"code:" +Arrays.toString(code));
         return;
     }
 
@@ -61,11 +94,25 @@ public class Tx {
         }
     }
 
-    public static Tx  NewTransferAssetTransaction(UTXOTxInput[] inputs, TxOutput[] outputs) {
+    private static boolean isVersion9(TxOutput[] outputs) throws Exception{
+        for(int i=0;i<outputs.length;i++){
+            if (0x09 == outputs[i].getVersion()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static Tx  NewTransferAssetTransaction(UTXOTxInput[] inputs, TxOutput[] outputs) throws Exception{
 
         Tx tx = new Tx();
         tx.UTXOInputs = inputs;
         tx.Outputs = outputs;
+        if(isVersion9(tx.Outputs)){
+            tx.TxVersion = 0x09;
+        }else{
+            tx.TxVersion = 0x00;
+        }
         tx.TxType = 0x02;
         tx.Attributes = new TxAttribute[1];
         tx.Programs = new ArrayList<Program>();
@@ -82,12 +129,17 @@ public class Tx {
         return tx;
     }
 
-    public static Tx  NewTransferAssetTransaction(UTXOTxInput[] inputs, TxOutput[] outputs , String memo) {
+    public static Tx  NewTransferAssetTransaction(UTXOTxInput[] inputs, TxOutput[] outputs , String memo) throws Exception{
 
         Tx tx = new Tx();
         tx.UTXOInputs = inputs;
         tx.Outputs = outputs;
         tx.TxType = 0x02;
+        if(isVersion9(tx.Outputs)){
+            tx.TxVersion = 0x09;
+        }else{
+            tx.TxVersion = 0x00;
+        }
         tx.Attributes = new TxAttribute[1];
         tx.Programs = new ArrayList<Program>();
 
@@ -125,6 +177,28 @@ public class Tx {
         return tx;
     }
 
+    public static Tx  NewTransferAssetTransaction(UTXOTxInput[] inputs, TxOutput[] outputs,PayloadRegisterIdentification payloadRegisterIdentification) {
+
+        Tx tx = new Tx();
+        tx.UTXOInputs = inputs;
+        tx.Outputs = outputs;
+        tx.TxType = 0x09;
+        tx.Attributes = new TxAttribute[1];
+        tx.PayloadRegisterIdentification = payloadRegisterIdentification;
+        tx.Programs = new ArrayList<Program>();
+
+        TxAttribute ta = TxAttribute.NewTxNonceAttribute();
+        tx.Attributes[0] = ta;
+
+        for(UTXOTxInput txin : tx.UTXOInputs){
+
+            tx.hashMapPriv.put(txin.getProgramHash(),txin.getPrivateKey());
+        }
+
+        //使用私钥构造出公钥,通过公钥构造出contract,通过contract构造出programhash,写入到 UTXOInputs
+
+        return tx;
+    }
 
     public static Tx  NewCrossChainTransaction(UTXOTxInput[] inputs, TxOutput[] outputs , PayloadTransferCrossChainAsset[] CrossChainAsset) {
 
@@ -198,6 +272,11 @@ public class Tx {
 
     //Serialize the SingleSignTransaction data without contracts
     public void SerializeUnsigned(DataOutputStream o) throws IOException {
+        //txVersion
+        if(this.TxVersion != 0x00){
+            o.writeByte(this.TxVersion);
+        }
+
         //txType
         //w.Write([]byte{byte(tx.TxType)})
         o.writeByte(this.TxType);
@@ -210,6 +289,12 @@ public class Tx {
         if (this.parloadRecord != null){
             this.parloadRecord.Serialize(o);
         }
+
+        //PayloadRegisterIdentification
+        if (this.PayloadRegisterIdentification != null){
+            this.PayloadRegisterIdentification.Serialize(o);
+        }
+
         if ( this.CrossChainAsset != null){
             Util.WriteVarUint(o, this.CrossChainAsset.length);
             for (PayloadTransferCrossChainAsset ca : this.CrossChainAsset)
@@ -236,7 +321,7 @@ public class Tx {
         Util.WriteVarUint(o,this.Outputs.length);
         if (this.Outputs.length > 0) {
             for (TxOutput output : this.Outputs) {
-                output.Serialize(o);
+                output.Serialize(o,this.TxVersion);
             }
         }
 
@@ -275,8 +360,8 @@ public class Tx {
         }
 
         Map<String, List<Map>> resultmap = new LinkedHashMap<String, List<Map>>();
-        resultmap.put("UTXOInputs:",inputList);
-        resultmap.put("Outputs:",outputList);
+        resultmap.put("UTXOInputs",inputList);
+        resultmap.put("Outputs",outputList);
         return resultmap;
     }
 

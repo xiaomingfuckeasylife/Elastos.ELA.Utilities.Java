@@ -15,20 +15,9 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-/**
- * @author: DongLei.Tan
- * @contact: tandonglei28@gmail.com
- * @time: 2018/9/21
- */
 public class Account {
     private static final Logger LOGGER = LoggerFactory.getLogger(Account.class);
 
-    /**
-     * 通过本地账户创建交易
-     * @param outpus
-     * @return
-     * @throws Exception
-     */
     public static String genRawTransactionByAccount(JSONObject outpus){
         try {
             final JSONArray transaction = outpus.getJSONArray("Transactions");

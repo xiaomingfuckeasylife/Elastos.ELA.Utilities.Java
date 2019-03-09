@@ -8,8 +8,6 @@ import java.util.Map;
 
 /**
  * @author: DongLei.Tan
- * @contact: tandonglei@elastos.org
- * @time: 2018/1/22
  */
 public class Rpc {
      //生成区块

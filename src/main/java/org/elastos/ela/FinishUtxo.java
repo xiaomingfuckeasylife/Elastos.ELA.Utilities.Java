@@ -15,8 +15,6 @@ import java.util.*;
 
 /**
  * @author: DongLei.Tan
- * @contact: tandonglei28@gmail.com
- * @time: 2018/6/20
  */
 public class FinishUtxo {
 
@@ -86,13 +84,6 @@ public class FinishUtxo {
     }
 
 
-    /**
-     * 获取可用utxo
-     * @param utxo
-     * @param outputs
-     * @param ChangeAddress
-     * @return
-     */
     public static void getUtxo(String utxo , LinkedList<TxOutput> outputs , String ChangeAddress) throws SDKException {
 
 //        String flag = "ok";
@@ -171,17 +162,7 @@ public class FinishUtxo {
         }
     }
 
-    /**
-     * 解析区块信息判断可用utxo
-     * UTXO锁验证步骤：
-     * 1.判断所有的input 是否引用包含 UTXO 锁 （OutputLock > 0）的 UTXO，如果没有引用，则返回 true;
-     * 2.判断引用了 UTXO 锁的 Input 的 Sequence 是否等于 0xfffffffe,如果不相等，返回 false；
-     * 3.判断交易的 TimeLock 是否大于所有 UTXO 的 OutputLock 的值，如果不大于，返回 false;
-     * 4.验证通过，返回 ture.
-     * @param txid
-     * @param vout
-     * @return
-     */
+
     public static Boolean unlockeUtxo(String blockHash , String txid , int vout){
         LinkedHashMap<String, Object> paramsMap = new LinkedHashMap<String, Object>();
         paramsMap.put("blockhash",blockHash);

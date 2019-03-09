@@ -8,11 +8,7 @@ import org.elastos.ela.Util;
 import javax.xml.bind.DatatypeConverter;
 
 import static org.elastos.ela.Util.ToScriptHash;
-/**
- * @author: DongLei.Tan
- * @contact: tandonglei28@gmail.com
- * @time: 2018/9/21
- */
+
 public class Verify {
     public enum Type{
         PrivateKeyLower("privateKey"),
@@ -102,7 +98,7 @@ public class Verify {
                 if (AddressLower != null) {
                     try {
                         byte[] sh = ToScriptHash((String) AddressLower);
-                        if(sh[0]!=33&&sh[0]!=18){
+                        if(sh[0]!=33&&sh[0]!=18&&sh[0]!=103){
                             throw new SDKException(ErrorCode.InvalidAddress);
                         }
                     }catch (Exception e) {
